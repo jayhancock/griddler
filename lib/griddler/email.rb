@@ -4,10 +4,11 @@ module Griddler
   class Email
     include ActionView::Helpers::SanitizeHelper
     attr_reader :to, :from, :cc, :bcc, :subject, :body, :raw_body, :raw_text, :raw_html,
-      :headers, :raw_headers, :attachments
+      :headers, :raw_headers, :attachments, :empty_reply_parsing
 
     def initialize(params)
       @params = params
+      @empty_reply_parsing = params.fetch(:empty_reply_parsing, false)
 
       @to = recipients(:to)
       @from = extract_address(params[:from])
@@ -49,7 +50,7 @@ module Griddler
     end
 
     def extract_body
-      EmailParser.extract_reply_body(text_or_sanitized_html)
+      EmailParser.extract_reply_body(text_or_sanitized_html, empty_reply_parsing)
     end
 
     def extract_headers

@@ -376,7 +376,20 @@ describe Griddler::Email, 'body formatting' do
     expect(body_from_email(text: nil)).to eq ''
   end
 
-  def body_from_email(raw_body, charsets = {})
+  context 'empty_reply_parsing is true' do
+    body = <<-EOF
+      > -- REPLY ABOVE THIS LINE --
+
+      > Hey!
+      I am writing this in the wrong place.
+    EOF
+
+    it 'returns message when no result found' do
+      expect(body_from_email({text: body}, {}, true)).to eq body
+    end
+  end
+
+  def body_from_email(raw_body, charsets = {}, empty_reply_parsing = false)
     raw_body.each do |format, text|
       text.encode!(charsets[format]) if charsets[format]
     end
@@ -392,6 +405,7 @@ describe Griddler::Email, 'body formatting' do
     end
 
     params.merge!(raw_body)
+    params.merge!(empty_reply_parsing: empty_reply_parsing)
 
     email = Griddler::Email.new(params)
     email.body

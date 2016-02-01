@@ -24,11 +24,11 @@ module Griddler::EmailParser
     }
   end
 
-  def self.extract_reply_body(body)
+  def self.extract_reply_body(body, empty_reply_parsing = false)
     if body.blank?
       ""
     else
-      remove_reply_portion(body)
+      parsed = remove_reply_portion(body)
         .split(/[\r]*\n/)
         .reject do |line|
           line =~ /^[[:space:]]+>/ ||
@@ -36,6 +36,8 @@ module Griddler::EmailParser
         end.
         join("\n").
         strip
+
+      parsed.blank? && empty_reply_parsing ? body : parsed
     end
   end
 
